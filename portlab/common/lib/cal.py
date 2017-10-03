@@ -43,3 +43,6 @@ def business_days(start, end, exchcode=""):
                 dates.append(current)
             current += delta
     return (dates)
+    
+def today():
+    return (datetime.strptime(datetime.today().strftime('%Y-%m-%d'), '%Y-%m-%d'))

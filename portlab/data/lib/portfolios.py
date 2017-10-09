@@ -100,6 +100,22 @@ def set_prices(portfolios, dbconn, dryrun=True):
         except exc.SQLAlchemyError as e:
             error("DB SQLAlchemy Error: %s, sql=%s" % (e, sql))                               
             
+def set_corporate_actions(corporate_actions, dbconn, dryrun=True):
+    if not dryrun:
+        db = create_engine(dbconn, echo=False)
+        db.connect()
+        
+    for index, row in corporate_actions.iterrows():
+        sql = "REPLACE INTO corpactions VALUES ('%s','%s','%s',%f,%f,%d,%d,%f)" % (row['portfolio'], row['date'], str(index), row['dividend'], row['split'], row['oldqty'], row['newqty'], row['cashadj'])
+        try:
+            info("Executing query [%s]" % (sql))
+            if not dryrun:  
+                db.execute(sql)
+        except exc.IntegrityError as e:
+            error("DB Integrity Error: %s, sql=%s" % (e, sql))
+        except exc.SQLAlchemyError as e:
+            error("DB SQLAlchemy Error: %s, sql=%s" % (e, sql))      
+            
 def set_totals(dbconn, dryrun=True):
     if not dryrun:
         db = create_engine(dbconn, echo=False)

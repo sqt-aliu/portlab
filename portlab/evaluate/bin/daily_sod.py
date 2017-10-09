@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 from common.lib.log import debug, error, fatal, info, warn
 from common.lib.cal import business_days, today
 from common.lib.db import query_mysql
-from data.lib.portfolios import set_reports, get_portfolio, get_dividends
+from data.lib.portfolios import set_reports, set_corporate_actions, get_portfolio, get_dividends
 
 def print_usage():
     print  ("  Usage: %s [options]" % (os.path.basename(__file__))) 
@@ -40,19 +40,26 @@ def init_sod(dbConn, exchCode, dryRun):
             if positions.shape[0] > 0:
                 dvd = get_dividends(today(), today())
                 dvd = dvd[['dividend','split']]
-                posdvd = positions.join(dvd, how='inner')
+                posdvd = positions.join(dvd, how='inner').copy(deep=True)
                 if posdvd.shape[0] > 0:
                     # adjustment required
                     posdvd['dividend'] = posdvd['dividend'].fillna(0.)
                     posdvd['split'] = posdvd['split'].fillna(1.)
+                    posdvd['oldqty'] = posdvd['sodqty']
                     for index, row in posdvd.iterrows():
                         info("Adjusting div/split %s, div=%f, split=%f" % (index, row['dividend'], row['split']))
                         positions.ix[index, 'divs'] =  positions.ix[index, 'sodqty'] * row['dividend']
                         positions.ix[index, 'sodqty'] =  positions.ix[index, 'sodqty'] * (1./row['split'])
+                        # record adjustment for records
+                        posdvd.ix[index, 'cashadj'] = positions.ix[index, 'sodqty'] * row['dividend']
+                        posdvd.ix[index, 'newqty'] = positions.ix[index, 'sodqty'] * (1./row['split'])
+                        
+                    # prepare insert to portfolios/corpactions database
+                    set_corporate_actions(posdvd, dbConn, dryrun=dryRun)
                 else:
                     info("No adjustments found")
                     
-                # prepare insert to database
+                # prepare insert to portfolios/reports database
                 set_reports(positions, dbConn, dryrun=dryRun)
 
     

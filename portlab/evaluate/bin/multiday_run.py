@@ -17,12 +17,12 @@ from data.lib.prices import get_equity_prices_rt
 def print_usage():
     print  ("  Usage: %s [options]" % (os.path.basename(__file__))) 
     print  ("  Options:")
-    print  ("  \t-c, --exchcode\texchange code")
-    print  ("  \t-d, --database\tdatabase connection string")
-    print  ("  \p-p, --portfolio\tportfolio name")
-    print  ("  \t-s, --start\tstart date")
-    print  ("  \t-e, --end\tend date")    
-    print  ("  \t-r, --dryrun\tdry run")      
+    print  ("  \t-c, --exchcode\t\texchange code")
+    print  ("  \t-d, --database\t\tdatabase connection string")
+    print  ("  \t-p, --portfolio\t\tportfolio name")
+    print  ("  \t-s, --start\t\tstart date")
+    print  ("  \t-e, --end\t\tend date")    
+    print  ("  \t-r, --dryrun\t\tdry run")      
     print  ("  \t-h,\t\t\thelp")
 
 def format_time(time):
@@ -30,7 +30,8 @@ def format_time(time):
     return datetime.strptime(today + "T" + time, "%Y%m%dT%H:%M:%S")
     
 def init_sod(sDate, sPortfolio, dbConn, exchCode, dryRun):
-    positions = get_portfolio(sPortfolio, sDate)
+    days = business_days(sDate - timedelta(days=10), sDate - timedelta(days=1), exchCode)
+    positions = get_portfolio(sPortfolio, days[-1])
     # positions = positions[positions['eodqty'] != 0] # remove empty positions
     # set today's trade date
     positions['date'] = sDate.strftime('%Y-%m-%d')

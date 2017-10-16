@@ -113,9 +113,13 @@ def main(argv):
     
     finishTime = format_time(argFinish)    
     info("Dry Run is turned %s" % ("ON" if argDryRun else "OFF"))
-    while datetime.now() <= finishTime:        
-        init_intraday(argDBConn, argExchCode, argDryRun)
-        sleep(argSleep)
+    while datetime.now() <= finishTime:     
+        try:
+            init_intraday(argDBConn, argExchCode, argDryRun)
+        except:
+            error("Unexpected error: %s" % (str(sys.exc_info()[0])))
+        finally:
+            sleep(argSleep)
     
 if __name__ == '__main__':
     main(sys.argv[1:])

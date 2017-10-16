@@ -13,6 +13,7 @@ from common.lib.db import query_mysql
 from common.lib.sym import local_hk_symbology
 from data.lib.portfolios import set_reports, set_corporate_actions, get_portfolio, get_dividends
 from data.lib.prices import get_equity_prices_rt
+from data.lib.products import get_products
 
 def print_usage():
     print  ("  Usage: %s [options]" % (os.path.basename(__file__))) 
@@ -95,14 +96,17 @@ def init_eod(eDate, ePortfolio, dbConn, exchCode, dryRun):
     # fill zeros for missing data
     portfolio = portfolio.fillna(0.)
     portfolio = portfolio.reset_index().set_index('ticker')
+    # products
+    products = get_products(eDate, local_hk_symbology)
+    products = products[['tmult']] # take only multiplier column
     # price portfolio
     prices = get_equity_prices_rt(eDate, local_hk_symbology)
     
-    portfolio = portfolio.join(prices, how='left')
+    portfolio = portfolio.join(products, how='left').join(prices, how='left')
     
     # compute eodqty
     portfolio['eodqty'] = portfolio['sodqty'] + (portfolio['buyqty']-portfolio['sellqty']) 
-    portfolio['eodnot'] = portfolio['eodqty'] * portfolio['lastpx']
+    portfolio['eodnot'] = portfolio['eodqty'] * portfolio['lastpx'] * portfolio['tmult']
     portfolio['grosspnl'] = (portfolio['eodnot'] - (portfolio['buynot'] - portfolio['sellnot']) - portfolio['sodnot']) + portfolio['divs']
     portfolio['netpnl'] = portfolio['grosspnl'] - portfolio['comms']
     portfolio['date'] = eDate.strftime('%Y-%m-%d')

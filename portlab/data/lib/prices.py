@@ -37,7 +37,8 @@ def get_equity_ohlc(date, symbology, host="10.59.2.162", port=58000):
     return (df)   
     
 def get_equity_snapshot(date, time, symbology, host="10.59.3.166", port=48883):
-    qry = "0!select last tpx by ic from (select last tpx, sum tv by ic, 30 xbar recordtm.minute from (select recordtm + 08:00:00.000, ic, tpx, tv from tr where date=%s)) where minute <= %s" % (date.strftime('%Y.%m.%d'), time)
+    qry = "select ic, bpx^tpx from (`ic xkey select ic, bpx from pr where date=%s) lj (select last tpx by ic from (select last tpx, sum tv by ic, 30 xbar recordtm.minute from (select recordtm + 08:00:00.000, ic, tpx, tv from tr where date=%s)) where minute <= %s)" % (date.strftime('%Y.%m.%d'), date.strftime('%Y.%m.%d'), time)
+    #qry = "0!select last tpx by ic from (select last tpx, sum tv by ic, 30 xbar recordtm.minute from (select recordtm + 08:00:00.000, ic, tpx, tv from tr where date=%s)) where minute <= %s" % (date.strftime('%Y.%m.%d'), time)
     df = query_kdb(host, port, qry)
     df['ic'] = df['ic'].apply(bytes.decode)
     df['sym'] = df['ic'].apply(symbology)

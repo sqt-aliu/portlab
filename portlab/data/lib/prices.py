@@ -29,7 +29,8 @@ def get_equity_prices_rt(date, symbology, host="10.59.3.166", port=48883):
     return (df)    
     
 def get_equity_ohlc(date, symbology, host="10.59.2.162", port=58000):
-    qry = "0!select op:first tpx, hi:max tpx, lo:min tpx, cl:last tpx by date,ic from tr where date = %s" % (date.strftime('%Y.%m.%d'))
+    #qry = "0!select op:first tpx, hi:max tpx, lo:min tpx, cl:last tpx by date,ic from tr where date = %s" % (date.strftime('%Y.%m.%d'))
+    qry = "select date, ic, bpx^op, bpx^hi, bpx^lo, bpx^cl from  (`date`ic xkey select from pr where date = %s) lj (select op:first tpx, hi:max tpx, lo:min tpx, cl:last tpx by date,ic from tr where date = %s)" % (date.strftime('%Y.%m.%d'), date.strftime('%Y.%m.%d'))
     df = query_kdb(host, port, qry)
     df['ic'] = df['ic'].apply(bytes.decode)
     df['sym'] = df['ic'].apply(symbology)

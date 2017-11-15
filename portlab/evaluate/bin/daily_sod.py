@@ -26,7 +26,7 @@ def init_sod(dbConn, exchCode, dryRun):
     else:
         info("%d portfolio(s) found" % (portnames.shape[0]))
         for index, row in portnames.iterrows():
-            positions = get_portfolio(row['portfolio'], days[-1])
+            positions = get_portfolio(row['portfolio'], days[-1], dbConn)
             # positions = positions[positions['eodqty'] != 0] # remove empty positions
             # set today's trade date
             positions['date'] = today().strftime('%Y-%m-%d')

@@ -32,7 +32,7 @@ def format_time(time):
     
 def init_sod(sDate, sPortfolio, dbConn, exchCode, dryRun):
     days = business_days(sDate - timedelta(days=10), sDate - timedelta(days=1), exchCode)
-    positions = get_portfolio(sPortfolio, days[-1])
+    positions = get_portfolio(sPortfolio, days[-1], dbConn)
     # positions = positions[positions['eodqty'] != 0] # remove empty positions
     # set today's trade date
     positions['date'] = sDate.strftime('%Y-%m-%d')

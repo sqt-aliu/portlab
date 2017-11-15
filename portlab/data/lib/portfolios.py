@@ -12,25 +12,25 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../..'))
 from common.lib.log import debug, error, fatal, info, warn
 from common.lib.db import query_mysql, query_kdb
     
-def get_portfolio(portfolio, date, dbconn="mysql+mysqlconnector://sqtdata:sqtdata123@10.59.4.20:3306/portfolios"):
+def get_portfolio(portfolio, date, dbconn="mysql+mysqlconnector://sqtdata:sqtdata123@10.59.2.164:3306/portfolios"):
     qry = "select * from report where portfolio = '%s' and date = '%s'" % (portfolio, date.strftime('%Y-%m-%d'))
     df = query_mysql(dbconn, qry, verbose=False)
     df = df.set_index('ticker')
     return (df)
     
-def get_portfolios(date, dbconn="mysql+mysqlconnector://sqtdata:sqtdata123@10.59.4.20:3306/portfolios"):
+def get_portfolios(date, dbconn="mysql+mysqlconnector://sqtdata:sqtdata123@10.59.2.164:3306/portfolios"):
     qry = "select * from report where date = '%s'" % (date.strftime('%Y-%m-%d'))
     df = query_mysql(dbconn, qry, verbose=False)
     df = df.set_index('ticker')
     return (df)    
         
-def get_dividends(startdate, enddate, dbconn="mysql+mysqlconnector://sqtdata:sqtdata123@10.59.4.20:3306/equities"):
+def get_dividends(startdate, enddate, dbconn="mysql+mysqlconnector://sqtdata:sqtdata123@10.59.2.164:3306/equities"):
     qry = "select * from dvd where date >= '%s' and date <= '%s'" % (startdate.strftime('%Y-%m-%d'), enddate.strftime('%Y-%m-%d'))
     df = query_mysql(dbconn, qry, verbose=False)
     df = df.set_index('ticker')
     return (df)    
     
-def get_trades(portfolio, date, dbconn="mysql+mysqlconnector://sqtdata:sqtdata123@10.59.4.20:3306/portfolios"):
+def get_trades(portfolio, date, dbconn="mysql+mysqlconnector://sqtdata:sqtdata123@10.59.2.164:3306/portfolios"):
     qry = "select * from trades where portfolio = '%s' and date = '%s'" % (portfolio, date.strftime('%Y-%m-%d'))
     df = query_mysql(dbconn, qry, verbose=False)
     df = df.set_index('ticker')
